@@ -1,0 +1,356 @@
+:root {
+    --primary: #FF6B00;
+    --primary-hover: #e55e00;
+    --background: #050505;
+    --surface: #121212;
+    --surface-border: #333333;
+    --text: #F0F0F0;
+    --text-muted: #A0A0A0;
+    --error: #ff4444;
+    --success: #00C851;
+}
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Segoe UI', system-ui, sans-serif; 
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* Nav */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--surface-border);
+    background: var(--surface);
+}
+
+.logo { 
+    font-weight: 800; 
+    font-size: 1.5rem; 
+    letter-spacing: 1px; 
+}
+
+.highlight { 
+    color: var(--primary); 
+}
+
+.nav-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Buttons */
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover { 
+    background: var(--primary); 
+    color: white; 
+}
+
+.btn-outline:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary);
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover { 
+    background: var(--primary-hover); 
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+/* Layout */
+.container { 
+    max-width: 800px; 
+    margin: 2rem auto; 
+    padding: 0 1rem; 
+}
+
+.form-header { 
+    text-align: center; 
+    margin-bottom: 2rem; 
+}
+
+.subtitle { 
+    color: var(--text-muted); 
+}
+
+.form-section {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-border);
+    margin-bottom: 1.5rem;
+}
+
+.form-section h2 {
+    color: var(--primary);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-border);
+    padding-bottom: 0.5rem;
+}
+
+/* Form Inputs */
+.grid-2 { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1rem; 
+}
+
+.form-group { 
+    margin-bottom: 1rem; 
+}
+
+label { 
+    display: block; 
+    margin-bottom: 0.5rem; 
+    font-size: 0.9rem; 
+    color: var(--text-muted); 
+}
+
+input, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background: #000;
+    border: 1px solid var(--surface-border);
+    color: white;
+    border-radius: 4px;
+    transition: border-color 0.3s;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 5px rgba(255, 107, 0, 0.3);
+}
+
+input::placeholder, textarea::placeholder {
+    color: #555;
+}
+
+/* Checkboxes */
+.checkbox-group { 
+    display: flex; 
+    gap: 1.5rem; 
+    margin-bottom: 1rem; 
+    flex-wrap: wrap; 
+}
+
+.checkbox-container { 
+    display: flex; 
+    align-items: center; 
+    cursor: pointer; 
+}
+
+.checkbox-container input { 
+    width: auto; 
+    margin-right: 0.5rem; 
+    accent-color: var(--primary); 
+    cursor: pointer;
+}
+
+/* Messages */
+.hidden { 
+    display: none; 
+}
+
+#form-message {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.error-msg { 
+    background: rgba(255, 68, 68, 0.1); 
+    border: 1px solid var(--error); 
+    color: var(--error); 
+}
+
+.success-msg { 
+    background: rgba(0, 200, 81, 0.1); 
+    border: 1px solid var(--success); 
+    color: var(--success); 
+}
+
+/* FHIR Panel */
+.fhir-panel {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fhir-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--surface-border);
+}
+
+.fhir-header h3 {
+    color: var(--primary);
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+.close-fhir {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    transition: color 0.2s;
+}
+
+.close-fhir:hover {color: var(--primary);
+}
+.fhir-content {
+display: flex;
+flex-direction: column;
+gap: 1rem;
+}
+.fhir-summary {
+background: rgba(255, 107, 0, 0.05);
+padding: 1rem;
+border-radius: 4px;
+border-left: 3px solid var(--primary);
+}
+.fhir-stat {
+display: flex;
+gap: 0.5rem;
+margin-bottom: 0.5rem;
+font-size: 0.95rem;
+}
+.fhir-stat:last-child {
+margin-bottom: 0;
+}
+.stat-label {
+color: var(--text-muted);
+font-weight: 600;
+}
+.stat-value {
+color: var(--text);
+font-family: 'Courier New', monospace;
+}
+.fhir-actions {
+display: flex;
+gap: 1rem;
+}
+.fhir-actions .btn-outline,
+.fhir-actions .btn-primary {
+flex: 1;
+margin: 0;
+}
+.fhir-json {
+background: #000;
+border: 1px solid var(--surface-border);
+border-radius: 4px;
+padding: 1rem;
+overflow-x: auto;
+max-height: 400px;
+font-family: 'Courier New', monospace;
+font-size: 0.85rem;
+color: #00ff00;
+margin-top: 0.5rem;
+}
+.fhir-json::-webkit-scrollbar {
+width: 8px;
+height: 8px;
+}
+.fhir-json::-webkit-scrollbar-track {
+background: var(--background);
+}
+.fhir-json::-webkit-scrollbar-thumb {
+background: var(--primary);
+border-radius: 4px;
+}
+/* Mobile */
+@media (max-width: 768px) {
+.navbar {
+flex-direction: column;
+gap: 1rem;
+padding: 1rem;
+}
+.nav-actions {
+    width: 100%;
+    justify-content: center;
+}
+}
+@media (max-width: 600px) {
+.grid-2 {
+grid-template-columns: 1fr;
+}
+.fhir-actions {
+    flex-direction: column;
+}
+
+.fhir-stat {
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.checkbox-group {
+    flex-direction: column;
+    gap: 0.75rem;
+}
+}

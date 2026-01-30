@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Intake | FHIR-Ready | David Quintana Portfolio</title>
+    <link rel="stylesheet" href="static/css/styles.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">MED<span class="highlight">INTAKE</span></div>
+        <div class="nav-actions">
+            <button id="demo-data-btn" class="btn-outline">
+                <span data-i18n="btn_demo">Load Demo Data</span>
+            </button>
+            <button id="lang-toggle" class="btn-outline">
+                <span id="lang-span" lang="es">Español</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="form-header">
+            <h1 data-i18n="title">Patient Intake Form</h1>
+            <p data-i18n="subtitle" class="subtitle">Secure Healthcare Portal - FHIR Compliant</p>
+        </header>
+
+        <form id="intake-form">
+            <section class="form-section">
+                <h2 data-i18n="sec_patient">Patient Information</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="fname" data-i18n="lbl_fname">First Name</label>
+                        <input type="text" id="fname" name="first_name" data-i18n-ph="ph_fname" placeholder="Jane" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lname" data-i18n="lbl_lname">Last Name</label>
+                        <input type="text" id="lname" name="last_name" data-i18n-ph="ph_lname" placeholder="Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dob" data-i18n="lbl_dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone" data-i18n="lbl_phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email" data-i18n="lbl_email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="jane.doe@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="address" data-i18n="lbl_address">Home Address</label>
+                    <input type="text" id="address" name="address" placeholder="123 Main St, City, State 12345" required>
+                </div>
+                <div class="form-group">
+                    <label for="emergency" data-i18n="lbl_emergency">Emergency Contact</label>
+                    <input type="text" id="emergency" name="emergency_contact" placeholder="John Doe (555) 987-6543" required>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 data-i18n="sec_insurance">Insurance & Visit Details</h2>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="provider" data-i18n="lbl_provider">Insurance Provider</label>
+                        <input type="text" id="provider" name="insurance_provider" placeholder="Blue Cross" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="policy" data-i18n="lbl_policy">Policy Number</label>
+                        <input type="text" id="policy" name="policy_number" data-i18n-ph="ph_policy" placeholder="e.g. XY-123456" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reason" data-i18n="lbl_reason">Reason for Visit</label>
+                    <textarea id="reason" name="reason_for_visit" rows="3" data-i18n-ph="ph_reason" placeholder="Briefly describe your symptoms..." required></textarea>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2 data-i18n="sec_history">Health History</h2>
+                <div class="checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="condition" value="diabetes">
+                        <span data-i18n="chk_diabetes">Diabetes</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="condition" value="hypertension">
+                        <span data-i18n="chk_hyp">Hypertension</span>
+                    </label>
+                    <label class="checkbox-container">
+                        <input type="checkbox" name="condition" value="asthma">
+                        <span data-i18n="chk_asthma">Asthma</span>
+                    </label>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="meds" data-i18n="lbl_meds">Current Medications</label>
+                        <textarea id="meds" name="medications" rows="2" data-i18n-ph="ph_meds" placeholder="List dosage and frequency..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="allergies" data-i18n="lbl_allergies">Allergies</label>
+                        <textarea id="allergies" name="allergies" rows="2" data-i18n-ph="ph_allergies" placeholder="Food, latex, or seasonal..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <div id="form-message" class="hidden"></div>
+
+            <button type="submit" class="btn-primary" data-i18n="btn_submit">Submit Intake</button>
+        </form>
+    </main>
+
+    <script src="static/js/translations.js"></script>
+    <script src="static/js/app.js"></script>
+</body>
+</html>
