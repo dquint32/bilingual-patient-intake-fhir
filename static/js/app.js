@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleSpan = document.getElementById('lang-span');
     const demoBtn = document.getElementById('demo-data-btn');
 
+    // Backend URL (UPDATED)
+    const API_URL = 'https://app-holy-flower-295-production.up.railway.app/submit';
+
     // Demo data
     const demoData = {
         en: {
@@ -70,8 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (demoBtn) {
         demoBtn.addEventListener('click', () => {
             const data = demoData[currentLang];
-            
-            // Fill text inputs
+
             document.getElementById('fname').value = data.first_name;
             document.getElementById('lname').value = data.last_name;
             document.getElementById('dob').value = data.dob;
@@ -84,18 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('reason').value = data.reason_for_visit;
             document.getElementById('meds').value = data.medications;
             document.getElementById('allergies').value = data.allergies;
-            
-            // Check condition checkboxes
+
             document.querySelectorAll('input[name="condition"]').forEach(checkbox => {
                 checkbox.checked = data.conditions.includes(checkbox.value);
             });
 
-            // Clear any existing error highlighting
             document.querySelectorAll('input, textarea').forEach(el => {
                 el.style.borderColor = '';
             });
 
-            // Show success message
             msgBox.textContent = translations[currentLang].demo_loaded;
             msgBox.className = 'success-msg';
             setTimeout(() => {
@@ -114,23 +113,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FHIR Display Functions ---
     function showFhirPanel(fhirBundle, patientId) {
-        // Remove existing panel if present
         const existingPanel = document.getElementById('fhir-panel');
         if (existingPanel) existingPanel.remove();
 
         const panel = document.createElement('div');
         panel.id = 'fhir-panel';
         panel.className = 'fhir-panel';
-        
+
         const title = currentLang === 'en' ? 'FHIR Resources Generated' : 'Recursos FHIR Generados';
         const closeText = currentLang === 'en' ? 'Close' : 'Cerrar';
         const downloadText = currentLang === 'en' ? 'Download FHIR Bundle' : 'Descargar Bundle FHIR';
         const patientIdText = currentLang === 'en' ? 'Patient ID' : 'ID del Paciente';
         const resourcesText = currentLang === 'en' ? 'Resources Created' : 'Recursos Creados';
-        
+
         const resourceCount = fhirBundle.entry.length;
         const resourceTypes = fhirBundle.entry.map(e => e.resource.resourceType).join(', ');
-        
+
         panel.innerHTML = `
             <div class="fhir-header">
                 <h3>${title}</h3>
@@ -154,12 +152,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <pre id="fhir-json" class="fhir-json hidden"></pre>
             </div>
         `;
-        
+
         document.querySelector('.container').appendChild(panel);
-        
-        // Event listeners
+
         panel.querySelector('.close-fhir').addEventListener('click', () => panel.remove());
-        
+
         document.getElementById('view-fhir-btn').addEventListener('click', () => {
             const jsonPre = document.getElementById('fhir-json');
             if (jsonPre.classList.contains('hidden')) {
@@ -169,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 jsonPre.classList.add('hidden');
             }
         });
-        
+
         document.getElementById('download-fhir-btn').addEventListener('click', () => {
             downloadFhirBundle(fhirBundle, patientId);
         });
@@ -191,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Form Submission ---
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         msgBox.className = 'hidden';
         document.querySelectorAll('input, textarea').forEach(el => {
             el.style.borderColor = '';
@@ -199,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!form.checkValidity()) {
             const requiredFields = form.querySelectorAll('input[required], textarea[required]');
-            
+
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     field.style.borderColor = 'var(--primary)';
@@ -208,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             msgBox.textContent = translations[currentLang].msg_error;
             msgBox.className = 'error-msg';
-            
+
             const firstInvalid = form.querySelector(':invalid');
             if (firstInvalid) {
                 firstInvalid.focus();
@@ -223,15 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        
+
         const conditions = Array.from(formData.getAll('condition'));
         data.conditions = conditions;
         data.language_preference = currentLang;
 
         try {
-            // Change this URL to match your backend location
-            const API_URL = 'http://127.0.0.1:8000/submit';
-            
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -246,31 +240,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (result.success) {
                 form.reset();
-                
-                // Display success message
+
                 const successText = result.message + result.timestamp;
-                const fhirText = currentLang === 'en' 
-                    ? ' FHIR resources created successfully.' 
+                const fhirText = currentLang === 'en'
+                    ? ' FHIR resources created successfully.'
                     : ' Recursos FHIR creados exitosamente.';
-                
+
                 msgBox.textContent = successText + fhirText;
                 msgBox.className = 'success-msg';
-                
-                // Store FHIR bundle and show panel
+
                 lastFhirBundle = result.fhir_bundle;
                 showFhirPanel(result.fhir_bundle, result.patient_id);
-                
+
             } else {
                 throw new Error(result.message || 'Server error');
             }
         } catch (error) {
             console.error('Submission Error:', error);
             let errorMessage = translations[currentLang].msg_error;
+
             if (error.message.includes('Failed to fetch')) {
-                errorMessage = currentLang === 'en' 
-                    ? 'Cannot connect to server. Please ensure the backend is running on http://127.0.0.1:8000'
-                    : 'No se puede conectar al servidor. Asegúrese de que el backend esté ejecutándose en http://127.0.0.1:8000';
+                errorMessage = currentLang === 'en'
+                    ? 'Cannot connect to server. Please try again later.'
+                    : 'No se puede conectar al servidor. Inténtelo de nuevo más tarde.';
             }
+
             msgBox.textContent = errorMessage;
             msgBox.className = 'error-msg';
         } finally {
@@ -279,13 +273,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Clear error highlighting on input
     form.addEventListener('input', (e) => {
         if (e.target.style.borderColor === 'var(--primary)') {
             e.target.style.borderColor = '';
         }
     });
 
-    // Initialize language on load
     updateLanguage();
 });
