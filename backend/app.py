@@ -7,19 +7,27 @@ import uuid
 
 app = FastAPI(title="Healthcare Intake API", version="1.0.0")
 
-# CORS Configuration - allow GitHub Pages + fallback wildcard
+# ---------------------------------------------------------
+# CORS CONFIGURATION (FIXED)
+# ---------------------------------------------------------
+# IMPORTANT:
+# - Removed "*" wildcard (breaks CORS with credentials)
+# - Added ONLY your GitHub Pages frontend origins
+# - This is the correct configuration for Railway + GitHub Pages
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "*",
-        "https://dquint32.github.io"
+        "https://dquint32.github.io",
+        "https://dquint32.github.io/bilingual-patient-intake-fhir"
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Pydantic model for data validation
+# ---------------------------------------------------------
+# DATA MODEL
+# ---------------------------------------------------------
 class IntakeForm(BaseModel):
     first_name: str
     last_name: str
@@ -36,6 +44,9 @@ class IntakeForm(BaseModel):
     conditions: Optional[List[str]] = []
     language_preference: str = "en"
 
+# ---------------------------------------------------------
+# FHIR GENERATION FUNCTIONS
+# ---------------------------------------------------------
 def convert_to_fhir_patient(data: dict) -> dict:
     patient_id = str(uuid.uuid4())
 
@@ -100,6 +111,7 @@ def convert_to_fhir_patient(data: dict) -> dict:
 
     return fhir_patient
 
+
 def convert_to_fhir_encounter(data: dict, patient_id: str) -> dict:
     encounter_id = str(uuid.uuid4())
 
@@ -124,6 +136,7 @@ def convert_to_fhir_encounter(data: dict, patient_id: str) -> dict:
             "text": data.get("reason_for_visit", "General consultation")
         }]
     }
+
 
 def convert_to_fhir_condition(data: dict, patient_id: str) -> list:
     conditions = data.get("conditions", [])
@@ -175,6 +188,7 @@ def convert_to_fhir_condition(data: dict, patient_id: str) -> list:
 
     return fhir_conditions
 
+
 def convert_to_fhir_allergy(data: dict, patient_id: str) -> list:
     allergies_text = data.get("allergies", "").strip()
     if not allergies_text:
@@ -216,6 +230,7 @@ def convert_to_fhir_allergy(data: dict, patient_id: str) -> list:
 
     return fhir_allergies
 
+
 def convert_to_fhir_coverage(data: dict, patient_id: str) -> dict:
     coverage_id = str(uuid.uuid4())
 
@@ -250,6 +265,9 @@ def convert_to_fhir_coverage(data: dict, patient_id: str) -> dict:
         }]
     }
 
+# ---------------------------------------------------------
+# ROUTES
+# ---------------------------------------------------------
 @app.get("/")
 def read_root():
     return {
@@ -257,6 +275,7 @@ def read_root():
         "version": "1.0.0",
         "endpoints": {"submit": "/submit (POST)"}
     }
+
 
 @app.post("/submit")
 def submit_form(data: dict = Body(...)):
@@ -320,6 +339,7 @@ def submit_form(data: dict = Body(...)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
 
 @app.get("/health")
 def health_check():
