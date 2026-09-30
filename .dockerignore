@@ -1,1 +1,11 @@
 fly.toml
+.git
+**/__pycache__
+**/*.pyc
+backend/tests
+backend/requirements-dev.txt
+backend/pytest.ini
+.pytest_cache
+.coverage
+static
+index.html

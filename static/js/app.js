@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // State
-    let currentLang = 'en';
+    const LANG_KEY = 'medintake-lang';
+    const readLang = () => { try { return localStorage.getItem(LANG_KEY); } catch { return null; } };
+    const saveLang = lang => { try { localStorage.setItem(LANG_KEY, lang); } catch { /* storage blocked */ } };
+    let currentLang = readLang() === 'es' ? 'es' : 'en';
     let lastFhirBundle = null;
     const form = document.getElementById('intake-form');
     const msgBox = document.getElementById('form-message');
@@ -107,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleBtn) {
         toggleBtn.addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'es' : 'en';
+            saveLang(currentLang);
             updateLanguage();
         });
     }
@@ -233,7 +237,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                let detail = '';
+                try {
+                    const body = await response.json();
+                    if (Array.isArray(body.errors) && body.errors.length) {
+                        detail = body.errors.map(e => `${e.field}: ${e.message}`).join(' · ');
+                    }
+                } catch { /* non-JSON error body */ }
+                const err = new Error(`HTTP error! status: ${response.status}`);
+                err.detail = detail;
+                throw err;
             }
 
             const result = await response.json();
@@ -241,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 form.reset();
 
-                const successText = result.message + result.timestamp;
+                const successText = `${result.message} ${result.timestamp}.`;
                 const fhirText = currentLang === 'en'
                     ? ' FHIR resources created successfully.'
                     : ' Recursos FHIR creados exitosamente.';
@@ -263,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorMessage = currentLang === 'en'
                     ? 'Cannot connect to server. Please try again later.'
                     : 'No se puede conectar al servidor. Inténtelo de nuevo más tarde.';
+            }
+
+            if (error.detail) {
+                errorMessage = `${errorMessage} ${error.detail}`;
             }
 
             msgBox.textContent = errorMessage;
