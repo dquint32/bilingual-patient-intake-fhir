@@ -8,11 +8,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('intake-form');
     const msgBox = document.getElementById('form-message');
     const toggleBtn = document.getElementById('lang-toggle');
-    const toggleSpan = document.getElementById('lang-span');
     const demoBtn = document.getElementById('demo-data-btn');
 
-    // Backend URL (UPDATED)
-    const API_URL = 'https://app-holy-flower-295-production.up.railway.app/submit';
+    // Where the form is processed.
+    // Default: the Python package in backend/intake runs in the browser via Pyodide
+    // (see py-engine.js), so the GitHub Pages demo needs no server. Set API_URL to
+    // use the FastAPI service instead, e.g. 'http://127.0.0.1:8000/submit'.
+    const API_URL = null;
+    const engineStatus = document.getElementById('engine-status');
+    let engineState = 'loading';
+    const engine = window.createPyEngine({
+        files: {
+            'intake/__init__.py': 'backend/intake/__init__.py',
+            'intake/terminology.py': 'backend/intake/terminology.py',
+            'intake/schemas.py': 'backend/intake/schemas.py',
+            'intake/fhir_builders.py': 'backend/intake/fhir_builders.py',
+            'intake/service.py': 'backend/intake/service.py'
+        },
+        packages: ['pydantic'],
+        pipPackages: ['email-validator==2.3.0'],   // required by pydantic.EmailStr
+        entry: 'intake.service.submit_json'
+    });
+
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    function renderEngineStatus() {
+        if (!engineStatus) return;
+        if (API_URL) { engineStatus.hidden = true; return; }
+        const t = translations[currentLang];
+        engineStatus.hidden = false;
+        engineStatus.dataset.state = engineState;
+        const text = { loading: t.engine_loading, ready: t.engine_ready, error: t.engine_error }[engineState];
+        engineStatus.innerHTML = `<span class="engine-dot" aria-hidden="true"></span><span>${escapeHtml(text)}</span>`
+            + (engineState === 'error'
+                ? ` <button type="button" class="link-btn" data-action="retry">${escapeHtml(t.retry)}</button>`
+                : '');
+    }
+
+    function setEngineState(state) {
+        engineState = state;
+        renderEngineStatus();
+    }
+
+    async function warmUpEngine() {
+        setEngineState('loading');
+        try {
+            await engine.load();
+            setEngineState('ready');
+        } catch (err) {
+            console.error('Python engine failed to load:', err);
+            setEngineState('error');
+        }
+    }
+
+    if (engineStatus) {
+        engineStatus.addEventListener('click', e => {
+            if (e.target.closest('[data-action="retry"]')) warmUpEngine();
+        });
+    }
+
+    // Both transports resolve to {status, body} with the same body shape.
+    async function submitIntake(data) {
+        if (API_URL) {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return { status: response.status, body: await response.json() };
+        }
+        const out = JSON.parse(await engine.call(JSON.stringify(data)));
+        setEngineState('ready');
+        return out;
+    }
 
     // Demo data
     const demoData = {
@@ -66,9 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (toggleSpan && translations[currentLang]) {
-            toggleSpan.textContent = translations[currentLang].toggle_label;
-            toggleSpan.setAttribute('lang', currentLang === 'en' ? 'es' : 'en');
+        renderEngineStatus();
+
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-label', currentLang === 'en' ? 'Cambiar a español' : 'Switch to English');
         }
     }
 
@@ -122,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const panel = document.createElement('div');
         panel.id = 'fhir-panel';
-        panel.className = 'fhir-panel';
+        panel.className = 'fhir-panel card card-accent';
 
         const title = currentLang === 'en' ? 'FHIR Resources Generated' : 'Recursos FHIR Generados';
         const closeText = currentLang === 'en' ? 'Close' : 'Cerrar';
@@ -136,24 +207,24 @@ document.addEventListener('DOMContentLoaded', () => {
         panel.innerHTML = `
             <div class="fhir-header">
                 <h3>${title}</h3>
-                <button class="close-fhir" aria-label="${closeText}">×</button>
+                <button type="button" class="close-fhir icon-btn" aria-label="${closeText}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
             </div>
             <div class="fhir-content">
                 <div class="fhir-summary">
                     <div class="fhir-stat">
                         <span class="stat-label">${patientIdText}:</span>
-                        <span class="stat-value">${patientId}</span>
+                        <span class="stat-value">${escapeHtml(patientId)}</span>
                     </div>
                     <div class="fhir-stat">
                         <span class="stat-label">${resourcesText}:</span>
-                        <span class="stat-value">${resourceCount} (${resourceTypes})</span>
+                        <span class="stat-value">${resourceCount} (${escapeHtml(resourceTypes)})</span>
                     </div>
                 </div>
                 <div class="fhir-actions">
-                    <button id="view-fhir-btn" class="btn-outline">${currentLang === 'en' ? 'View JSON' : 'Ver JSON'}</button>
-                    <button id="download-fhir-btn" class="btn-primary">${downloadText}</button>
+                    <button type="button" id="view-fhir-btn" class="btn btn-secondary" aria-expanded="false" aria-controls="fhir-json">${currentLang === 'en' ? 'View JSON' : 'Ver JSON'}</button>
+                    <button type="button" id="download-fhir-btn" class="btn btn-primary">${downloadText}</button>
                 </div>
-                <pre id="fhir-json" class="fhir-json hidden"></pre>
+                <pre id="fhir-json" class="fhir-json hidden" tabindex="0" aria-label="FHIR Bundle JSON"></pre>
             </div>
         `;
 
@@ -169,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 jsonPre.classList.add('hidden');
             }
+            document.getElementById('view-fhir-btn').setAttribute('aria-expanded', String(!jsonPre.classList.contains('hidden')));
         });
 
         document.getElementById('download-fhir-btn').addEventListener('click', () => {
@@ -230,52 +302,36 @@ document.addEventListener('DOMContentLoaded', () => {
         data.language_preference = currentLang;
 
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            const { status, body: result } = await submitIntake(data);
 
-            if (!response.ok) {
-                let detail = '';
-                try {
-                    const body = await response.json();
-                    if (Array.isArray(body.errors) && body.errors.length) {
-                        detail = body.errors.map(e => `${e.field}: ${e.message}`).join(' · ');
-                    }
-                } catch { /* non-JSON error body */ }
-                const err = new Error(`HTTP error! status: ${response.status}`);
+            if (status !== 200 || !result.success) {
+                const detail = Array.isArray(result.errors) && result.errors.length
+                    ? result.errors.map(e => `${e.field}: ${e.message}`).join(' · ')
+                    : '';
+                // Highlight the inputs the Python validator rejected, like the client-side check does.
+                (result.errors || []).forEach(e => {
+                    const input = form.querySelector(`[name="${CSS.escape(String(e.field).split('.')[0])}"]`);
+                    if (input) input.style.borderColor = 'var(--primary)';
+                });
+                const err = new Error(result.message || `HTTP ${status}`);
                 err.detail = detail;
+                err.validation = status === 422;
                 throw err;
             }
 
-            const result = await response.json();
+            form.reset();
+            msgBox.textContent = `${result.message} ${result.timestamp}. ${translations[currentLang].fhir_created}`;
+            msgBox.className = 'success-msg';
 
-            if (result.success) {
-                form.reset();
-
-                const successText = `${result.message} ${result.timestamp}.`;
-                const fhirText = currentLang === 'en'
-                    ? ' FHIR resources created successfully.'
-                    : ' Recursos FHIR creados exitosamente.';
-
-                msgBox.textContent = successText + fhirText;
-                msgBox.className = 'success-msg';
-
-                lastFhirBundle = result.fhir_bundle;
-                showFhirPanel(result.fhir_bundle, result.patient_id);
-
-            } else {
-                throw new Error(result.message || 'Server error');
-            }
+            lastFhirBundle = result.fhir_bundle;
+            showFhirPanel(result.fhir_bundle, result.patient_id);
         } catch (error) {
-            console.error('Submission Error:', error);
+            if (!error.validation) console.error('Submission Error:', error);
             let errorMessage = translations[currentLang].msg_error;
 
-            if (error.message.includes('Failed to fetch')) {
-                errorMessage = currentLang === 'en'
-                    ? 'Cannot connect to server. Please try again later.'
-                    : 'No se puede conectar al servidor. Inténtelo de nuevo más tarde.';
+            if (!error.validation) {
+                errorMessage = translations[currentLang].conn_error;
+                if (!API_URL) setEngineState('error');
             }
 
             if (error.detail) {
@@ -297,4 +353,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateLanguage();
+    if (!API_URL) warmUpEngine();
 });

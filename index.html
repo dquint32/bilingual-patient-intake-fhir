@@ -1,119 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Healthcare Intake | FHIR-Ready | David Quintana Portfolio</title>
+    <title>Bilingual Patient Intake → FHIR R4 | David Quintana</title>
+    <meta name="description" content="Bilingual (English/Spanish) patient intake form that validates input with Pydantic v2 and builds a FHIR R4 Bundle. The tested Python backend runs in the browser via Pyodide.">
+    <meta name="author" content="David Quintana">
+    <meta name="color-scheme" content="dark light">
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap">
+    <script>try{var t=localStorage.getItem('dq-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+    <link rel="stylesheet" href="static/css/dq-theme.css">
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
-
-    <nav class="navbar">
-        <div class="logo">MED<span class="highlight">INTAKE</span></div>
-        <div class="nav-actions">
-            <button id="demo-data-btn" class="btn-outline">
-                <span data-i18n="btn_demo">Load Demo Data</span>
-            </button>
-            <button id="lang-toggle" class="btn-outline">
-                <span id="lang-span" lang="es">Español</span>
-            </button>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="dq-header">
+    <div class="dq-container dq-header-inner">
+        <a class="brand" href="https://davidquintana.dev/" aria-label="David Quintana — portfolio home">
+            <span class="brand-mark" aria-hidden="true">DQ</span>
+            <span class="brand-text"><span class="brand-name">David Quintana</span><span class="brand-role">Live demo · Intake → FHIR R4</span></span>
+        </a>
+        <div class="dq-tools">
+            <button type="button" id="lang-toggle" class="seg lang-switch" aria-label="Cambiar a español"><span class="opt opt-en">EN</span><span class="opt opt-es">ES</span></button>
+            <a class="icon-btn" href="https://github.com/dquint32/bilingual-patient-intake-fhir" target="_blank" rel="noopener" aria-label="Source code on GitHub"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.3 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg></a>
+            <button class="icon-btn theme-toggle" type="button" aria-pressed="false" aria-label="Switch to light theme"><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
         </div>
-    </nav>
+    </div>
+</header>
 
-    <main class="container">
-        <header class="form-header">
+<main id="main" class="dq-main">
+    <div class="dq-container container">
+        <header class="dq-hero form-header">
+            <p class="kicker" data-i18n="kicker">FHIR R4 interoperability · Live demo</p>
             <h1 data-i18n="title">Patient Intake Form</h1>
-            <p data-i18n="subtitle" class="subtitle">Secure Healthcare Portal - FHIR Compliant</p>
+            <p class="lead subtitle" data-i18n="subtitle">Secure Healthcare Portal - FHIR Compliant</p>
+            <div class="hero-actions">
+                <button type="button" id="demo-data-btn" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+                    <span data-i18n="btn_demo">Load Demo Data</span>
+                </button>
+                <ul class="tags" aria-label="Technologies">
+                    <li class="tag">Pydantic v2</li><li class="tag">FHIR R4</li><li class="tag">SNOMED CT</li><li class="tag">Pyodide</li>
+                </ul>
+            </div>
         </header>
 
-        <form id="intake-form">
-            <section class="form-section">
-                <h2 data-i18n="sec_patient">Patient Information</h2>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label for="fname" data-i18n="lbl_fname">First Name</label>
-                        <input type="text" id="fname" name="first_name" data-i18n-ph="ph_fname" placeholder="Jane" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="lname" data-i18n="lbl_lname">Last Name</label>
-                        <input type="text" id="lname" name="last_name" data-i18n-ph="ph_lname" placeholder="Doe" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="dob" data-i18n="lbl_dob">Date of Birth</label>
-                        <input type="date" id="dob" name="dob" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone" data-i18n="lbl_phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="email" data-i18n="lbl_email">Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="jane.doe@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="address" data-i18n="lbl_address">Home Address</label>
-                    <input type="text" id="address" name="address" placeholder="123 Main St, City, State 12345" required>
-                </div>
-                <div class="form-group">
-                    <label for="emergency" data-i18n="lbl_emergency">Emergency Contact</label>
-                    <input type="text" id="emergency" name="emergency_contact" placeholder="John Doe (555) 987-6543" required>
-                </div>
-            </section>
+        <p id="engine-status" class="engine-status" role="status" aria-live="polite" hidden></p>
 
-            <section class="form-section">
-                <h2 data-i18n="sec_insurance">Insurance & Visit Details</h2>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label for="provider" data-i18n="lbl_provider">Insurance Provider</label>
-                        <input type="text" id="provider" name="insurance_provider" placeholder="Blue Cross" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="policy" data-i18n="lbl_policy">Policy Number</label>
-                        <input type="text" id="policy" name="policy_number" data-i18n-ph="ph_policy" placeholder="e.g. XY-123456" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="reason" data-i18n="lbl_reason">Reason for Visit</label>
-                    <textarea id="reason" name="reason_for_visit" rows="3" data-i18n-ph="ph_reason" placeholder="Briefly describe your symptoms..." required></textarea>
-                </div>
-            </section>
+        <form id="intake-form" class="dq-form">
+                    <section class="form-section card">
+                        <h2 class="section-title" data-i18n="sec_patient">Patient Information</h2>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="fname" data-i18n="lbl_fname">First Name</label>
+                                <input type="text" id="fname" name="first_name" data-i18n-ph="ph_fname" placeholder="Jane" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lname" data-i18n="lbl_lname">Last Name</label>
+                                <input type="text" id="lname" name="last_name" data-i18n-ph="ph_lname" placeholder="Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob" data-i18n="lbl_dob">Date of Birth</label>
+                                <input type="date" id="dob" name="dob" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone" data-i18n="lbl_phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" data-i18n="lbl_email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="jane.doe@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address" data-i18n="lbl_address">Home Address</label>
+                            <input type="text" id="address" name="address" placeholder="123 Main St, City, State 12345" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="emergency" data-i18n="lbl_emergency">Emergency Contact</label>
+                            <input type="text" id="emergency" name="emergency_contact" placeholder="John Doe (555) 987-6543" required>
+                        </div>
+                    </section>
 
-            <section class="form-section">
-                <h2 data-i18n="sec_history">Health History</h2>
-                <div class="checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="condition" value="diabetes">
-                        <span data-i18n="chk_diabetes">Diabetes</span>
-                    </label>
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="condition" value="hypertension">
-                        <span data-i18n="chk_hyp">Hypertension</span>
-                    </label>
-                    <label class="checkbox-container">
-                        <input type="checkbox" name="condition" value="asthma">
-                        <span data-i18n="chk_asthma">Asthma</span>
-                    </label>
-                </div>
-                <div class="grid-2">
-                    <div class="form-group">
-                        <label for="meds" data-i18n="lbl_meds">Current Medications</label>
-                        <textarea id="meds" name="medications" rows="2" data-i18n-ph="ph_meds" placeholder="List dosage and frequency..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="allergies" data-i18n="lbl_allergies">Allergies</label>
-                        <textarea id="allergies" name="allergies" rows="2" data-i18n-ph="ph_allergies" placeholder="Food, latex, or seasonal..."></textarea>
-                    </div>
-                </div>
-            </section>
+                    <section class="form-section card">
+                        <h2 class="section-title" data-i18n="sec_insurance">Insurance & Visit Details</h2>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="provider" data-i18n="lbl_provider">Insurance Provider</label>
+                                <input type="text" id="provider" name="insurance_provider" placeholder="Blue Cross" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="policy" data-i18n="lbl_policy">Policy Number</label>
+                                <input type="text" id="policy" name="policy_number" data-i18n-ph="ph_policy" placeholder="e.g. XY-123456" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason" data-i18n="lbl_reason">Reason for Visit</label>
+                            <textarea id="reason" name="reason_for_visit" rows="3" data-i18n-ph="ph_reason" placeholder="Briefly describe your symptoms..." required></textarea>
+                        </div>
+                    </section>
 
-            <div id="form-message" class="hidden"></div>
+                    <section class="form-section card">
+                        <h2 class="section-title" data-i18n="sec_history">Health History</h2>
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="condition" value="diabetes">
+                                <span data-i18n="chk_diabetes">Diabetes</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="condition" value="hypertension">
+                                <span data-i18n="chk_hyp">Hypertension</span>
+                            </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="condition" value="asthma">
+                                <span data-i18n="chk_asthma">Asthma</span>
+                            </label>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label for="meds" data-i18n="lbl_meds">Current Medications</label>
+                                <textarea id="meds" name="medications" rows="2" data-i18n-ph="ph_meds" placeholder="List dosage and frequency..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="allergies" data-i18n="lbl_allergies">Allergies</label>
+                                <textarea id="allergies" name="allergies" rows="2" data-i18n-ph="ph_allergies" placeholder="Food, latex, or seasonal..."></textarea>
+                            </div>
+                        </div>
+                    </section>
 
-            <button type="submit" class="btn-primary" data-i18n="btn_submit">Submit Intake</button>
-        </form>
-    </main>
+                    <div id="form-message" class="hidden" role="status" aria-live="polite"></div>
 
-    <script src="static/js/translations.js"></script>
-    <script src="static/js/app.js"></script>
+                    <button type="submit" class="btn btn-primary btn-submit" data-i18n="btn_submit">Submit Intake</button>
+                </form>
+    </div>
+</main>
+
+<footer class="dq-footer">
+    <div class="dq-container dq-footer-inner">
+        <p>© 2026 David Quintana · Demo with synthetic data — do not enter real patient information.</p>
+        <nav aria-label="Project links"><a href="https://davidquintana.dev/intake-web-app.html">Case study</a><a href="https://github.com/dquint32/bilingual-patient-intake-fhir" target="_blank" rel="noopener">Source code</a><a href="https://davidquintana.dev/">Portfolio</a></nav>
+    </div>
+</footer>
+
+<script src="static/js/dq-theme.js"></script>
+<script src="static/js/translations.js"></script>
+<script src="static/js/py-engine.js"></script>
+<script src="static/js/app.js"></script>
 </body>
 </html>

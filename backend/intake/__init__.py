@@ -4,5 +4,6 @@ Layers:
     schemas.py        ingestion + validation (Pydantic v2 request/response contracts)
     fhir_builders.py  transformation (IntakeForm -> FHIR R4 Bundle), framework-free
     terminology.py    code systems and the SNOMED CT condition map
+    service.py        use case shared by the API and the in-browser (Pyodide) demo
     api.py            FastAPI routing, CORS, error handling
 """

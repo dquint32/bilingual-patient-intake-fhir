@@ -1,5 +1,6 @@
 const translations = {
     en: {
+        kicker: "FHIR R4 interoperability · Live demo",
         title: "Patient Intake Form",
         subtitle: "Secure Healthcare Portal - FHIR Compliant",
         // Sections
@@ -38,9 +39,17 @@ const translations = {
         // Messages
         msg_success: "Intake received successfully. Reference ID: ",
         msg_error: "Please correct the errors highlighted in orange.",
-        demo_loaded: "Demo data loaded successfully!"
+        demo_loaded: "Demo data loaded successfully!",
+        fhir_created: "FHIR resources created successfully.",
+        // In-browser Python engine
+        engine_loading: "Loading the Python FHIR engine in your browser…",
+        engine_ready: "Python engine ready — the tested backend code validates the form and builds the FHIR bundle right here in your browser. Nothing is sent to a server.",
+        engine_error: "The Python engine could not be loaded.",
+        retry: "Try again",
+        conn_error: "The processing engine is not available. Please try again."
     },
     es: {
+        kicker: "Interoperabilidad FHIR R4 · Demo en vivo",
         title: "Formulario de Admisión",
         subtitle: "Portal de Salud Seguro - Compatible con FHIR",
         // Sections
@@ -79,6 +88,13 @@ const translations = {
         // Messages
         msg_success: "Formulario recibido con éxito. ID de referencia: ",
         msg_error: "Por favor corrija los errores marcados en naranja.",
-        demo_loaded: "¡Datos de prueba cargados exitosamente!"
+        demo_loaded: "¡Datos de prueba cargados exitosamente!",
+        fhir_created: "Recursos FHIR creados exitosamente.",
+        // Motor de Python en el navegador
+        engine_loading: "Cargando el motor FHIR de Python en su navegador…",
+        engine_ready: "Motor de Python listo — el código probado del backend valida el formulario y genera el bundle FHIR aquí mismo en su navegador. No se envía nada a un servidor.",
+        engine_error: "No se pudo cargar el motor de Python.",
+        retry: "Reintentar",
+        conn_error: "El motor de procesamiento no está disponible. Inténtelo de nuevo."
     }
 };

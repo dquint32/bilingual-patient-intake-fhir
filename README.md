@@ -7,6 +7,8 @@
 
 **Live demo:** https://dquint32.github.io/bilingual-patient-intake-fhir/
 
+The live demo has no server. It loads [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly) and runs the **same `backend/intake` package the test suite covers**. Your input is validated by the Pydantic v2 models and turned into a FHIR R4 Bundle inside your browser, and nothing is sent anywhere. The same package is also served by FastAPI (Docker, Fly.io, Railway or Render) when a real endpoint is needed.
+
 ## Project Overview
 **MedIntake** is a comprehensive patient registration system designed to streamline the data entry process in clinical settings. This project features a responsive frontend and a robust Python backend that processes patient data and maps it to the **HL7 FHIR R4** interoperability standard.
 
@@ -19,7 +21,7 @@ The application addresses the needs of diverse patient populations by providing 
 * **Backend**: Python 3.11+, FastAPI.
 * **Data Validation**: Pydantic v2. Every request passes through a typed `IntakeForm` model before any FHIR is built.
 * **Interoperability**: HL7 FHIR R4 Bundle (Patient, Encounter, Coverage, Condition, AllergyIntolerance, MedicationStatement) with SNOMED CT and BCP-47 coding.
-* **Quality**: pytest (69 tests, 100% coverage), GitHub Actions CI on Python 3.11–3.13, bundle structure checked against the official `fhir.resources` R4B models.
+* **Quality**: pytest (80 tests, 100% coverage), GitHub Actions CI on Python 3.11–3.13, bundle structure checked against the official `fhir.resources` R4B models.
 
 ---
 
@@ -37,9 +39,12 @@ The application addresses the needs of diverse patient populations by providing 
 
 ```
 Browser (index.html + app.js)
-   │  POST /submit  (JSON)
-   ▼
-backend/intake/api.py            HTTP only: routing, CORS, error handlers
+   │  JSON payload
+   ├──► static/js/py-engine.js ─► Pyodide ─► intake.service.submit_json   (default: live demo, no server)
+   └──► POST /submit ─► backend/intake/api.py (HTTP only: routing, CORS, error handlers)   (optional)
+                                   │
+                                   ▼
+backend/intake/service.py        use case shared by both paths: validate → build bundle → response
    │
    ▼
 backend/intake/schemas.py        ingestion + validation: IntakeForm (Pydantic v2)
@@ -64,8 +69,8 @@ Validation failure (HTTP 422):
 
 ## 📂 Project Structure
 * `/` (Root): `index.html`, `Dockerfile`, `fly.toml`.
-* `static/css/`: `styles.css` containing the custom UI theme.
-* `static/js/`: `app.js` (logic) and `translations.js` (i18n).
+* `static/css/`: `dq-theme.css` (shared design system, same look as davidquintana.dev, light/dark) and `styles.css` (page layout).
+* `static/js/`: `app.js` (logic), `translations.js` (i18n), `py-engine.js` (Pyodide loader that runs `backend/intake` in the browser).
 * `backend/app.py`: deployment entry point (`uvicorn app:app`).
 * `backend/intake/`: the application package (see architecture above).
 * `backend/tests/`: pytest suite with mock payloads.
@@ -73,20 +78,10 @@ Validation failure (HTTP 422):
 ---
 
 ## 🎓 Academic Purpose
-<section id="purpose">
-    <h3>Purpose of This Site</h3>
-    <p>This website was created in partial fulfillment of the CIS 3030 course requirements at MSU Denver.</p>
-    <dl>
-        <dt>Student Developer</dt>
-        <dd>David Quintana</dd>
-        <dt>Contact</dt>
-        <dd>dquint32@msudenver.edu</dd>
-        <dt>Language Preference</dt>
-        <dd>English | Spanish</dd>
-        <dt>Course Info</dt>
-        <dd>CIS 3030 - Web Development</dd>
-    </dl>
-</section>
+Created in partial fulfillment of the CIS 3030 (Web Development) course requirements at MSU Denver.
+
+* **Developer:** David Quintana · [davidquintana.dev](https://davidquintana.dev)
+* **Languages:** English | Spanish
 
 ---
 
@@ -110,8 +105,12 @@ docker run -p 8080:8080 medintake
 The container runs as a non-root user and listens on `$PORT` (default 8080), so the same image runs on Railway, Render or Fly.io.
 
 ### Frontend
-1. Open `index.html` in your browser.
-2. The API endpoint is `API_URL` at the top of `static/js/app.js`.
+```bash
+python -m http.server 5500        # from the repo root, then open http://localhost:5500
+```
+The page must be served over HTTP (not opened as `file://`) so it can fetch the `.py` files.
+By default the form is processed by Pyodide in the browser. Pydantic ships with Pyodide; `email-validator`, which `EmailStr` needs, is installed from PyPI at load time.
+To use the FastAPI backend instead, set `API_URL` at the top of `static/js/app.js` (for example `'http://127.0.0.1:8000/submit'`).
 
 ---
 

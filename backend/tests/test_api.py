@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 import intake.api
+import intake.service
 from intake.config import DEFAULT_ORIGINS, _origins_from_env
 
 
@@ -49,7 +50,7 @@ def test_malformed_bodies_are_422_not_500(client, body: str) -> None:
 def test_unexpected_errors_do_not_leak_details(client, payload, monkeypatch) -> None:
     def boom(*_, **__):
         raise RuntimeError("secret PHI: Jane Doe 1985-06-15")
-    monkeypatch.setattr(intake.api, "build_bundle", boom)
+    monkeypatch.setattr(intake.service, "build_bundle", boom)
     response = client.post("/submit", json=payload)
     assert response.status_code == 500
     assert "Jane" not in response.text and response.json()["message"] == "Internal server error."
